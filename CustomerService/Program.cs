@@ -5,6 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowGateway", policy =>
+    {
+        policy.WithOrigins("https://localhost:7200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -18,6 +28,8 @@ builder.Services.AddDbContext<CustomerDbContext>(options =>
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 var app = builder.Build();
+
+app.UseCors("AllowGateway");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

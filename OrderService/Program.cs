@@ -6,6 +6,16 @@ using OrderService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowGateway", policy =>
+    {
+        policy.WithOrigins("https://localhost:7200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -21,6 +31,8 @@ builder.Services.AddScoped<OrderDomainService>();
 builder.Services.AddHttpClient<OrderDomainService>();
 
 var app = builder.Build();
+
+app.UseCors("AllowGateway");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

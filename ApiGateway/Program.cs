@@ -3,7 +3,6 @@ using Yarp.ReverseProxy;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -17,8 +16,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("https://localhost:7265/swagger/v1/swagger.json", "Products API");
+        options.SwaggerEndpoint("https://localhost:7103/swagger/v1/swagger.json", "Customers API");
+        options.SwaggerEndpoint("https://localhost:7260/swagger/v1/swagger.json", "Orders API");
+    });}
 
 app.UseHttpsRedirection();
 

@@ -3,6 +3,16 @@ using ProductService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowGateway", policy =>
+    {
+        policy.WithOrigins("https://localhost:7200") 
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -15,6 +25,8 @@ builder.Services.AddDbContext<ProductDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+
+app.UseCors("AllowGateway");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

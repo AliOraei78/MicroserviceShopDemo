@@ -40,11 +40,18 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 
 ### Day 4
 
-* Implemented OrderService with domain-driven business logic
-* Added order validation rules and business constraints
-* Implemented order total calculation based on product data
-* Integrated communication with ProductService for pricing information
-* Separated business rules into a dedicated Domain Service
+* Implemented OrderService with Domain Logic
+* Added business rules and order validation
+* Implemented order total calculation and service integration
+
+### Day 5
+
+* Implemented an API Gateway using YARP (Yet Another Reverse Proxy)
+* Established a single entry point for all microservices
+* Configured request routing and service forwarding
+* Simplified client-to-service communication
+* Improved scalability and centralized traffic management
+
 
 
 

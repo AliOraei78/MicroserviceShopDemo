@@ -20,13 +20,17 @@ public class OrderDomainService
         {
             // Call ProductService to retrieve product pricing
             var response = await _httpClient.GetAsync(
-                $"https://localhost:5029/api/products/{item.ProductId}");
+                $"https://localhost:7265/api/products/{item.ProductId}");
 
             if (response.IsSuccessStatusCode)
             {
-                var product = await response.Content.ReadFromJsonAsync<dynamic>();
+                // Deserialize directly into the ProductDto class
+                var product = await response.Content.ReadFromJsonAsync<ProductDto>();
 
-                total += (decimal)product.price * item.Quantity;
+                if (product != null)
+                {
+                    total += product.Price * item.Quantity;
+                }
             }
         }
 
