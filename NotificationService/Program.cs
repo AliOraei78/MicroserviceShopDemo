@@ -1,21 +1,43 @@
+using MassTransit;
+using NotificationService.Consumers;
+using MicroserviceShopDemo.Common.Events;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Register MassTransit
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<OrderCreatedNotificationConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("localhost", "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        // Dedicated queue for notifications
+        cfg.ReceiveEndpoint("notification-order-created-queue", e =>
+        {
+            e.ConfigureConsumer<OrderCreatedNotificationConsumer>(context);
+        });
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

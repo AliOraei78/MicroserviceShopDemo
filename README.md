@@ -58,16 +58,17 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 
 ### Day 7
 
-* Implemented PaymentService
-* Created an `OrderCreatedConsumer` using MassTransit
-* Consumed `OrderCreatedEvent` messages from RabbitMQ
-* Added payment processing workflow triggered by order creation
-* Implemented asynchronous event handling between services
-* Prepared the foundation for future payment gateway integrations
-* Established the basis for publishing payment-related events (e.g., `PaymentCompletedEvent`)
+* Implemented PaymentService and integrated it with the message broker
+* Created consumers for processing order-related events
+* Added asynchronous payment processing workflows
+* Established the foundation for payment event publishing
 
+### Day 8
 
-
-
-
-
+* Implemented NotificationService
+* Created event consumers for handling order notifications
+* Integrated NotificationService with RabbitMQ and MassTransit
+* Simulated Email notification delivery
+* Simulated SMS notification delivery
+* Enabled multiple services to react independently to the same domain event
+* Strengthened the Event-Driven Architecture by adding cross-service notifications
