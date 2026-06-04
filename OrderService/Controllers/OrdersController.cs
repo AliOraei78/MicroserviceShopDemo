@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MassTransit;
+using MicroserviceShopDemo.Common.Events;
+using Microsoft.AspNetCore.Mvc;
 using OrderService.DTOs;
 using OrderService.Interfaces;
 using OrderService.Models;
@@ -12,11 +14,14 @@ public class OrdersController : ControllerBase
 {
     private readonly IOrderRepository _repository;
     private readonly OrderDomainService _domainService;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public OrdersController(IOrderRepository repository, OrderDomainService domainService)
+    public OrdersController(IOrderRepository repository, OrderDomainService domainService
+                           ,IPublishEndpoint publishEndpoint)
     {
         _repository = repository;
         _domainService = domainService;
+        _publishEndpoint = publishEndpoint;
     }
 
     [HttpPost]
@@ -43,6 +48,23 @@ public class OrdersController : ControllerBase
         }
 
         await _repository.AddAsync(order);
+
+        var orderEvent = new OrderCreatedEvent
+        {
+            OrderId = order.Id,
+            CustomerId = order.CustomerId,
+            TotalAmount = order.TotalAmount,
+            OrderDate = order.OrderDate,
+            Items = order.OrderItems.Select(i => new OrderItemEvent
+            {
+                ProductId = i.ProductId,
+                Quantity = i.Quantity,
+                UnitPrice = i.UnitPrice
+            }).ToList()
+        };
+
+        await _publishEndpoint.Publish(orderEvent);
+
         return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
     }
 

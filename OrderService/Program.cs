@@ -1,8 +1,10 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
 using OrderService.Interfaces;
 using OrderService.Repositories;
 using OrderService.Services;
+using MicroserviceShopDemo.Common.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 

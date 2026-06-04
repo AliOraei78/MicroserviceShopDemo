@@ -34,23 +34,29 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 
 ### Day 3
 
-* Implemented CustomerService
-* Applied the Repository Pattern for data access abstraction
+* Implemented CustomerService using the Repository Pattern
 * Improved maintainability, testability, and separation of concerns
 
 ### Day 4
 
 * Implemented OrderService with Domain Logic
-* Added business rules and order validation
-* Implemented order total calculation and service integration
+* Added order validation and business rules
+* Integrated ProductService for order total calculation
 
 ### Day 5
 
-* Implemented an API Gateway using YARP (Yet Another Reverse Proxy)
+* Implemented an API Gateway using YARP
 * Established a single entry point for all microservices
 * Configured request routing and service forwarding
-* Simplified client-to-service communication
-* Improved scalability and centralized traffic management
+
+### Day 6
+
+* Implemented asynchronous communication using RabbitMQ and MassTransit
+* Published domain events from OrderService
+* Introduced Event-Driven Architecture principles
+* Enabled loose coupling between microservices
+* Established the foundation for scalable inter-service communication
+
 
 
 
