@@ -55,7 +55,17 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 * Published domain events from OrderService
 * Introduced Event-Driven Architecture principles
 * Enabled loose coupling between microservices
-* Established the foundation for scalable inter-service communication
+
+### Day 7
+
+* Implemented PaymentService
+* Created an `OrderCreatedConsumer` using MassTransit
+* Consumed `OrderCreatedEvent` messages from RabbitMQ
+* Added payment processing workflow triggered by order creation
+* Implemented asynchronous event handling between services
+* Prepared the foundation for future payment gateway integrations
+* Established the basis for publishing payment-related events (e.g., `PaymentCompletedEvent`)
+
 
 
 

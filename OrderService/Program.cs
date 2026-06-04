@@ -32,6 +32,22 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<OrderDomainService>();
 builder.Services.AddHttpClient<OrderDomainService>();
 
+builder.Services.AddMassTransit(x =>
+{
+    // Configure RabbitMQ transport
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        // Set up RabbitMQ host connection
+        cfg.Host("localhost", "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
 var app = builder.Build();
 
 app.UseCors("AllowGateway");
