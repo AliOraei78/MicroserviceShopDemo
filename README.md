@@ -38,4 +38,13 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 * Applied the Repository Pattern for data access abstraction
 * Improved maintainability, testability, and separation of concerns
 
+### Day 4
+
+* Implemented OrderService with domain-driven business logic
+* Added order validation rules and business constraints
+* Implemented order total calculation based on product data
+* Integrated communication with ProductService for pricing information
+* Separated business rules into a dedicated Domain Service
+
+
 
