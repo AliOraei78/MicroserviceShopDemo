@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "MicroserviceStartup",
+    "Projects": [
+      {
+        "Path": "ApiGateway\\ApiGateway.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/docker/" />
+  <Folder Name="/docs/" />
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="ApiGateway/ApiGateway.csproj" />
+    <Project Path="CustomerService/CustomerService.csproj" />
+    <Project Path="InventoryService/InventoryService.csproj" />
+    <Project Path="MicroserviceShopDemo.Common/MicroserviceShopDemo.Common.csproj" />
+    <Project Path="NotificationService/NotificationService.csproj" />
+    <Project Path="OrderService/OrderService.csproj" />
+    <Project Path="PaymentService/PaymentService.csproj" />
+    <Project Path="ProductService/ProductService.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
