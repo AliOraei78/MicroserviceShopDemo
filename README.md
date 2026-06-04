@@ -30,6 +30,12 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 
 * Implemented ProductService with full CRUD operations
 * Integrated Entity Framework Core
-* Configured SQL Server LocalDB
-* Applied database migrations and data persistence
+* Established the data access layer and database persistence
+
+### Day 3
+
+* Implemented CustomerService
+* Applied the Repository Pattern for data access abstraction
+* Improved maintainability, testability, and separation of concerns
+
 
