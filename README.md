@@ -25,3 +25,11 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 ### Day 1
 
 * Created the solution structure and base projects
+
+### Day 2
+
+* Implemented ProductService with full CRUD operations
+* Integrated Entity Framework Core
+* Configured SQL Server LocalDB
+* Applied database migrations and data persistence
+
