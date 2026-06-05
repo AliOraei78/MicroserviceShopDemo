@@ -19,8 +19,7 @@ public class OrderDomainService
         foreach (var item in items)
         {
             // Call ProductService to retrieve product pricing
-            var response = await _httpClient.GetAsync(
-                $"https://localhost:7265/api/products/{item.ProductId}");
+            var response = await _httpClient.GetAsync($"api/products/{item.ProductId}");
 
             if (response.IsSuccessStatusCode)
             {

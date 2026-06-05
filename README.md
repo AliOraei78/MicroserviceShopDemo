@@ -71,4 +71,12 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 * Simulated Email notification delivery
 * Simulated SMS notification delivery
 * Enabled multiple services to react independently to the same domain event
-* Strengthened the Event-Driven Architecture by adding cross-service notifications
+
+### Day 9
+
+* Containerized microservices using Docker
+* Created Dockerfiles for individual services
+* Configured Docker Compose for multi-container orchestration
+* Containerized infrastructure components such as RabbitMQ
+* Simplified local development and deployment workflows
+* Established the foundation for cloud-native deployment

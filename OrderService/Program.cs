@@ -10,11 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowGateway", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("https://localhost:7200")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
@@ -30,15 +30,18 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<OrderDomainService>();
-builder.Services.AddHttpClient<OrderDomainService>();
-
+builder.Services.AddHttpClient<OrderDomainService>(client =>
+{
+    var baseUrl = builder.Configuration["ProductServiceSettings:BaseUrl"] ?? "http://product-service/";
+    client.BaseAddress = new Uri(baseUrl);
+});
 builder.Services.AddMassTransit(x =>
 {
     // Configure RabbitMQ transport
     x.UsingRabbitMq((context, cfg) =>
     {
         // Set up RabbitMQ host connection
-        cfg.Host("localhost", "/", h =>
+        cfg.Host("rabbitmq", "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
@@ -48,9 +51,11 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
+builder.WebHost.UseUrls("http://+:80");
+
 var app = builder.Build();
 
-app.UseCors("AllowGateway");
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -58,6 +63,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.MapOpenApi();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+    dbContext.Database.Migrate();
 }
 
 app.UseHttpsRedirection();

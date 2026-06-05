@@ -10,20 +10,23 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddReverseProxy()
        .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+builder.WebHost.UseUrls("http://+:80");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-app.UseSwaggerUI(options =>
+    app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("https://localhost:7265/swagger/v1/swagger.json", "Products API");
-        options.SwaggerEndpoint("https://localhost:7103/swagger/v1/swagger.json", "Customers API");
-        options.SwaggerEndpoint("https://localhost:7260/swagger/v1/swagger.json", "Orders API");
-    });}
+        options.SwaggerEndpoint("/swagger/products/v1/swagger.json", "Products API");
+        options.SwaggerEndpoint("/swagger/customers/v1/swagger.json", "Customers API");
+        options.SwaggerEndpoint("/swagger/orders/v1/swagger.json", "Orders API");
+    });
+}
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 // Enable YARP Reverse Proxy
 app.MapReverseProxy();

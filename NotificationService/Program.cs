@@ -15,7 +15,7 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("localhost", "/", h =>
+        cfg.Host("rabbitmq", "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
@@ -28,6 +28,8 @@ builder.Services.AddMassTransit(x =>
         });
     });
 });
+
+builder.WebHost.UseUrls("http://+:80");
 
 var app = builder.Build();
 

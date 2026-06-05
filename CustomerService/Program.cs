@@ -7,11 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowGateway", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("https://localhost:7200")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
@@ -27,9 +27,11 @@ builder.Services.AddDbContext<CustomerDbContext>(options =>
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
+builder.WebHost.UseUrls("http://+:80");
+
 var app = builder.Build();
 
-app.UseCors("AllowGateway");
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -37,6 +39,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.MapOpenApi();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<CustomerDbContext>();
+    dbContext.Database.Migrate();
 }
 
 app.UseHttpsRedirection();
