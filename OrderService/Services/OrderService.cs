@@ -18,18 +18,26 @@ public class OrderDomainService
 
         foreach (var item in items)
         {
-            // Call ProductService to retrieve product pricing
-            var response = await _httpClient.GetAsync($"api/products/{item.ProductId}");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                // Deserialize directly into the ProductDto class
-                var product = await response.Content.ReadFromJsonAsync<ProductDto>();
+                // Call ProductService to retrieve product pricing
+                var response = await _httpClient.GetAsync($"api/products/{item.ProductId}");
 
-                if (product != null)
+                if (response.IsSuccessStatusCode)
                 {
-                    total += product.Price * item.Quantity;
+                    // Deserialize directly into the ProductDto class
+                    var product = await response.Content.ReadFromJsonAsync<ProductDto>();
+
+                    if (product != null)
+                    {
+                        total += product.Price * item.Quantity;
+                    }
                 }
+            }
+            catch(Exception ex)
+            {
+                // Log the exception and continue with the next item
+                Console.WriteLine($"Error fetching product {item.ProductId}: {ex.Message}");
             }
         }
 

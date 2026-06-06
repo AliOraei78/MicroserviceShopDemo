@@ -26,6 +26,9 @@ builder.Services.AddDbContext<ProductDbContext>(options =>
 
 builder.WebHost.UseUrls("http://+:80");
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ProductDbContext>("Database");
+
 var app = builder.Build();
 
 app.UseCors("AllowAll");
@@ -47,6 +50,8 @@ using (var scope = app.Services.CreateScope())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.MapHealthChecks("/health");
 
 app.MapControllers();
 

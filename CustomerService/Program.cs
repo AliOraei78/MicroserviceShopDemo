@@ -29,6 +29,9 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 builder.WebHost.UseUrls("http://+:80");
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<CustomerDbContext>("Database");
+
 var app = builder.Build();
 
 app.UseCors("AllowAll");
@@ -50,6 +53,8 @@ using (var scope = app.Services.CreateScope())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.MapHealthChecks("/health");
 
 app.MapControllers();
 

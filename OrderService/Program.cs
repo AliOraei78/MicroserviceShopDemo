@@ -1,10 +1,14 @@
 using MassTransit;
+using MicroserviceShopDemo.Common.Events;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
 using OrderService.Interfaces;
 using OrderService.Repositories;
 using OrderService.Services;
-using MicroserviceShopDemo.Common.Events;
+using Polly;
+using Polly.Extensions.Http;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,11 +34,15 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<OrderDomainService>();
+// Combine base URL configuration and Polly resilience into a single chain
 builder.Services.AddHttpClient<OrderDomainService>(client =>
 {
     var baseUrl = builder.Configuration["ProductServiceSettings:BaseUrl"] ?? "http://product-service/";
     client.BaseAddress = new Uri(baseUrl);
-});
+})
+.AddPolicyHandler(GetRetryPolicy())
+.AddPolicyHandler(GetCircuitBreakerPolicy());
+
 builder.Services.AddMassTransit(x =>
 {
     // Configure RabbitMQ transport
@@ -52,6 +60,16 @@ builder.Services.AddMassTransit(x =>
 });
 
 builder.WebHost.UseUrls("http://+:80");
+
+// Health Checks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<OrderDbContext>("Database")
+    .AddRabbitMQ(sp =>
+    {
+        // Create the connection using the RabbitMQ Client factory
+        var factory = new ConnectionFactory { Uri = new Uri("amqp://guest:guest@rabbitmq:5672") };
+        return factory.CreateConnectionAsync();
+    }, name: "RabbitMQ");
 
 var app = builder.Build();
 
@@ -75,6 +93,43 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+// Health Check Endpoints
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var response = new
+        {
+            status = report.Status.ToString(),
+            details = report.Entries.Select(e => new
+            {
+                service = e.Key,
+                status = e.Value.Status.ToString(),
+                error = e.Value.Exception?.Message
+            })
+        };
+        await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
+    }
+}); app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
+
 app.MapControllers();
 
 app.Run();
+
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+}
+
+static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
+{
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
+}

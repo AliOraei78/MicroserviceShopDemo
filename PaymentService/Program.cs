@@ -34,6 +34,9 @@ builder.Services.AddMassTransit(x =>
 
 builder.WebHost.UseUrls("http://+:80");
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<PaymentDbContext>("Database");
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -50,6 +53,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();

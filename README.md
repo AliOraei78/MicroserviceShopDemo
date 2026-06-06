@@ -79,4 +79,14 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 * Configured Docker Compose for multi-container orchestration
 * Containerized infrastructure components such as RabbitMQ
 * Simplified local development and deployment workflows
-* Established the foundation for cloud-native deployment
+
+### Day 10
+
+* Implemented Health Checks for services and infrastructure dependencies
+* Added resilience patterns using Polly
+* Configured Retry policies for transient failures
+* Implemented Circuit Breaker patterns to prevent cascading failures
+* Improved fault tolerance and service reliability
+* Added monitoring endpoints for service health status
+* Established a foundation for production-grade observability
+
