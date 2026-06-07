@@ -90,3 +90,11 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 * Added monitoring endpoints for service health status
 * Established a foundation for production-grade observability
 
+### Day 11
+* Implemented InventoryService for stock management
+* Added inventory availability validation and stock reservation workflows
+* Implemented gRPC services for high-performance synchronous communication
+* Integrated OrderService with InventoryService using gRPC
+* Added real-time stock checking before order creation
+* Implemented stock reservation to prevent overselling
+* Combined synchronous (gRPC) and asynchronous (RabbitMQ/MassTransit) communication patterns

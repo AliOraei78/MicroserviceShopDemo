@@ -68,8 +68,22 @@ services:
     container_name: notification-service
     ports:
       - "7500:80"
+      - "50051:50051"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - rabbitmq
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: InventoryService/Dockerfile
+    container_name: inventory-service
+    ports:
+      - "7600:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal,1433;Database=InventoryDb;User Id=sa;Password=Ali433433;TrustServerCertificate=True;
     depends_on:
       - rabbitmq
 

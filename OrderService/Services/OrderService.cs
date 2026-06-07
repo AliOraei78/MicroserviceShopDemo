@@ -1,16 +1,89 @@
-﻿using OrderService.DTOs;
+﻿using Grpc.Net.Client;
+using InventoryService.Protos;
+using OrderService.DTOs;
 using OrderService.Models;
+using System.Threading.Tasks;
 
 namespace OrderService.Services;
 
 public class OrderDomainService
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<OrderDomainService> _logger;
 
-    public OrderDomainService(HttpClient httpClient)
+    public OrderDomainService(
+        HttpClient httpClient,
+        ILogger<OrderDomainService> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
     }
+
+    // New method: Check and reserve stock via gRPC
+    public async Task<bool> CheckAndReserveStockAsync(List<OrderItemDto> items)
+    {
+        using var channel = GrpcChannel.ForAddress("http://inventory-service:50051"); // InventoryService port
+        var client = new InventoryService.Protos.InventoryService.InventoryServiceClient(channel);
+
+        foreach (var item in items)
+        {
+            try
+            {
+                // Step 1: Check stock availability
+                var stockRequest = new StockRequest
+                {
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity
+                };
+
+                var stockResponse = await client.CheckStockAsync(stockRequest);
+
+                if (!stockResponse.IsAvailable)
+                {
+                    _logger.LogWarning(
+                        "Insufficient stock for Product {ProductId}. Current stock: {Stock}",
+                        item.ProductId,
+                        stockResponse.CurrentStock);
+
+                    return false;
+                }
+
+                // Step 2: Reserve stock
+                var reserveRequest = new ReserveRequest
+                {
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity
+                };
+
+                var reserveResponse = await client.ReserveStockAsync(reserveRequest);
+
+                if (!reserveResponse.Success)
+                {
+                    _logger.LogWarning(
+                        "Stock reservation failed: {Message}",
+                        reserveResponse.Message);
+
+                    return false;
+                }
+
+                _logger.LogInformation(
+                    "Stock successfully reserved for Product {ProductId}.",
+                    item.ProductId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "gRPC communication error with InventoryService for Product {ProductId}",
+                    item.ProductId);
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 
     public async Task<decimal> CalculateTotalAsync(List<OrderItemDto> items)
     {

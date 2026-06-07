@@ -9,7 +9,7 @@
   <Folder Name="/src/">
     <Project Path="ApiGateway/ApiGateway.csproj" />
     <Project Path="CustomerService/CustomerService.csproj" />
-    <Project Path="InventoryService/InventoryService.csproj" />
+    <Project Path="InventoryService/InventoryService.csproj" Id="9a11786c-f92e-4684-976f-6c2cee43bd0b" />
     <Project Path="MicroserviceShopDemo.Common/MicroserviceShopDemo.Common.csproj" />
     <Project Path="NotificationService/NotificationService.csproj" />
     <Project Path="OrderService/OrderService.csproj" />

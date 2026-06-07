@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MassTransit;
+using MicroserviceShopDemo.Common.Events;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProductService.Data;
 using ProductService.Models;
@@ -10,10 +12,12 @@ namespace ProductService.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly ProductDbContext _context;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public ProductsController(ProductDbContext context)
+    public ProductsController(ProductDbContext context, IPublishEndpoint publishEndpoint)
     {
         _context = context;
+        _publishEndpoint = publishEndpoint;
     }
 
     // GET: api/Products
@@ -38,6 +42,15 @@ public class ProductsController : ControllerBase
     {
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
+
+        var productEvent = new ProductCreatedEvent
+        {
+            ProductId = product.Id,
+            InitialStock = product.Stock
+        };
+
+        await _publishEndpoint.Publish(productEvent);
+
         return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
     }
 

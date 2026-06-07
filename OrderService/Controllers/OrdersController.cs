@@ -29,6 +29,12 @@ public class OrdersController : ControllerBase
     {
         _domainService.ValidateOrder(dto);
 
+        bool stockReserved = await _domainService.CheckAndReserveStockAsync(dto.Items);
+        if (!stockReserved)
+        {
+            return BadRequest("Insufficient stock for one or more products.");
+        }
+
         var order = new Order
         {
             CustomerId = dto.CustomerId,
