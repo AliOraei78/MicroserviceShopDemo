@@ -1,14 +1,24 @@
+using InventoryService.Consumers;
 using InventoryService.Data;
 using InventoryService.Services;
+using MassTransit;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OpenApi;
 using RabbitMQ.Client;
-using MassTransit;
-using InventoryService.Consumers;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File("logs/inventory-service-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddGrpc();
 builder.Services.AddControllers();
@@ -61,6 +71,21 @@ builder.Services.AddHealthChecks()
         return factory.CreateConnectionAsync();
     }, name: "RabbitMQ");
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo // Using OpenApiInfo directly now
+    {
+        Title = "Inventory Service API",
+        Version = "v1",
+        Description = "Inventory service in a Microservices architecture.",
+        Contact = new OpenApiContact // Using OpenApiContact directly now
+        {
+            Name = "Ali jenabi",
+            Email = "a.jenabi78@example.com"
+        }
+    });
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -91,6 +116,13 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 if (app.Environment.IsDevelopment())
 {
     app.MapGet("/", () => "gRPC Service is running. Use a gRPC client to call it.");
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "InventoryService v1");
+        c.RoutePrefix = "swagger";
+        c.DisplayRequestDuration();
+    });
 }
 
 app.Run();

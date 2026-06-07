@@ -2,10 +2,20 @@ using MassTransit;
 using MicroserviceShopDemo.Common.Events;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OpenApi;
 using NotificationService.Consumers;
 using RabbitMQ.Client;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File("logs/notification-service-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -43,12 +53,32 @@ builder.Services.AddHealthChecks()
     }, name: "RabbitMQ")
     .AddCheck("self", () => HealthCheckResult.Healthy("Notification Service is running"), tags: new[] { "ready" });
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo // Using OpenApiInfo directly now
+    {
+        Title = "Notification Service API",
+        Version = "v1",
+        Description = "Notification service in a Microservices architecture.",
+        Contact = new OpenApiContact // Using OpenApiContact directly now
+        {
+            Name = "Ali jenabi",
+            Email = "a.jenabi78@example.com"
+        }
+    });
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "NotificationService v1");
+        c.RoutePrefix = "swagger";
+        c.DisplayRequestDuration();
+    });
 }
 
 app.UseHttpsRedirection();

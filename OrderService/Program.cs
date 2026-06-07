@@ -2,6 +2,7 @@ using MassTransit;
 using MicroserviceShopDemo.Common.Events;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using OrderService.Data;
 using OrderService.Interfaces;
 using OrderService.Repositories;
@@ -9,6 +10,7 @@ using OrderService.Services;
 using Polly;
 using Polly.Extensions.Http;
 using RabbitMQ.Client;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,14 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File("logs/order-service-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 
@@ -71,6 +81,21 @@ builder.Services.AddHealthChecks()
         return factory.CreateConnectionAsync();
     }, name: "RabbitMQ");
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo // Using OpenApiInfo directly now
+    {
+        Title = "Order Service API",
+        Version = "v1",
+        Description = "Order service in a Microservices architecture.",
+        Contact = new OpenApiContact // Using OpenApiContact directly now
+        {
+            Name = "Ali jenabi",
+            Email = "a.jenabi78@example.com"
+        }
+    });
+});
+
 var app = builder.Build();
 
 app.UseCors("AllowAll");
@@ -79,7 +104,12 @@ app.UseCors("AllowAll");
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "OrderService v1");
+        c.RoutePrefix = "swagger";
+        c.DisplayRequestDuration();
+    });
     app.MapOpenApi();
 }
 

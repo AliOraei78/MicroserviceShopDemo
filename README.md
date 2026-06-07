@@ -98,3 +98,10 @@ A real-world Microservices project built with .NET 10, designed as a professiona
 * Added real-time stock checking before order creation
 * Implemented stock reservation to prevent overselling
 * Combined synchronous (gRPC) and asynchronous (RabbitMQ/MassTransit) communication patterns
+
+### Day 12
+* Implemented structured logging with Serilog
+* Added centralized and production-ready logging capabilities
+* Configured log enrichment and contextual logging
+* Enhanced Swagger/OpenAPI documentation
+* Added API descriptions, metadata, contact information, and endpoint documentation
